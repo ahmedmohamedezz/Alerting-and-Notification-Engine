@@ -1,0 +1,28 @@
+package com.learn.notifiy.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+@Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Entity
+@Table(name = "channels")
+public class Channel {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(length = 50, unique = true, nullable = false)
+    private String name;
+
+    @Override
+    public String toString() {
+        return "Channel{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
+    }
+}

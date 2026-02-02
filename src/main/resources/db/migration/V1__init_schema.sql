@@ -5,7 +5,7 @@ CREATE TABLE users
 (
     id             BIGSERIAL PRIMARY KEY,
     name           VARCHAR(100),
-    email          VARCHAR(255) UNIQUE,
+    email          VARCHAR(255) NOT NULL UNIQUE,
     email_verified BOOLEAN   DEFAULT FALSE,
     phone_number   VARCHAR(20) UNIQUE,
     phone_verified BOOLEAN   DEFAULT FALSE,
@@ -16,7 +16,7 @@ CREATE TABLE users
     deleted_at     TIMESTAMP DEFAULT NULL,
 
     CONSTRAINT chk_users_role
-        CHECK (role IN ('ROLE_USER', 'ROLE_ADMIN'));
+        CHECK (role IN ('ROLE_USER', 'ROLE_ADMIN'))
 );
 
 -- =========================================
@@ -55,7 +55,7 @@ CREATE TABLE users_preferences
 
 -- First, create a sequence with caching
 CREATE SEQUENCE logs_id_seq
-    INCREMENT 1
+    INCREMENT 1000
     START 1
     CACHE 1000; -- preallocate 1000 IDs in memory for fast inserts
 
@@ -68,7 +68,10 @@ CREATE TABLE logs
     retry_count INT                DEFAULT 0,
     status      VARCHAR(20),
     response    JSONB, -- store structures APIs responses
-    created_at  TIMESTAMP          DEFAULT NOW()
+    created_at  TIMESTAMP          DEFAULT NOW(),
+
+    CONSTRAINT chk_logs_status
+        CHECK (status IN ('SENT', 'FAILED', 'PENDING'))
 );
 
 -- =========================================
