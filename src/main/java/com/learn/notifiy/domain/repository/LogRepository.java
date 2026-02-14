@@ -1,6 +1,6 @@
-package com.learn.notifiy.repository;
+package com.learn.notifiy.domain.repository;
 
-import com.learn.notifiy.entity.Log;
+import com.learn.notifiy.domain.entity.Log;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

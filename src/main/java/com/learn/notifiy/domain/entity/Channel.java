@@ -1,4 +1,4 @@
-package com.learn.notifiy.entity;
+package com.learn.notifiy.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

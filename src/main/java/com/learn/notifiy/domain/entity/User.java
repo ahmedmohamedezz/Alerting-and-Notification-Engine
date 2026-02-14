@@ -1,6 +1,6 @@
-package com.learn.notifiy.entity;
+package com.learn.notifiy.domain.entity;
 
-import com.learn.notifiy.enums.UserRole;
+import com.learn.notifiy.domain.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -29,6 +29,9 @@ public class User {
 
     @Column(unique = true, nullable = false)
     private String email;
+
+    @Column(nullable = false)
+    private String password;
 
     private Boolean emailVerified = false;
 

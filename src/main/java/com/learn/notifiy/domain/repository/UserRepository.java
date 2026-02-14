@@ -1,9 +1,12 @@
-package com.learn.notifiy.repository;
+package com.learn.notifiy.domain.repository;
 
-import com.learn.notifiy.entity.User;
+import com.learn.notifiy.domain.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
+    Optional<User> findByEmail(String email);
 }

@@ -1,4 +1,4 @@
-package com.learn.notifiy.enums;
+package com.learn.notifiy.domain.enums;
 
 public enum LogStatus {
     SENT,
