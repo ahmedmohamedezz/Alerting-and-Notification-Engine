@@ -1,5 +1,6 @@
-package com.learn.notifiy.security;
+package com.learn.notifiy.filter;
 
+import com.learn.notifiy.utils.JwtUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,7 +35,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             // make sure jwt token is sent & is valid
             String token = jwtUtils.extractTokenFromRequestHeaders(request);
 
-            if (token != null && jwtUtils.validateJwtToken(token)) {
+            if (token != null && jwtUtils.validateAccessToken(token)) {
                 String email = jwtUtils.getSubjectFromJwtToken(token);
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 

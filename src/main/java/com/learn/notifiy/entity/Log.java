@@ -1,6 +1,6 @@
-package com.learn.notifiy.domain.entity;
+package com.learn.notifiy.entity;
 
-import com.learn.notifiy.domain.enums.LogStatus;
+import com.learn.notifiy.enums.LogStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -23,7 +23,7 @@ public class Log {
     @SequenceGenerator(name = "log_seq", sequenceName = "logs_id_seq", allocationSize = 1000)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User user;
 

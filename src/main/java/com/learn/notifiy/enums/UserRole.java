@@ -1,4 +1,4 @@
-package com.learn.notifiy.domain.enums;
+package com.learn.notifiy.enums;
 
 public enum UserRole {
     ROLE_USER,

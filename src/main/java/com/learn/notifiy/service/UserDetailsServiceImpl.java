@@ -1,6 +1,6 @@
-package com.learn.notifiy.security;
+package com.learn.notifiy.service;
 
-import com.learn.notifiy.domain.repository.UserRepository;
+import com.learn.notifiy.repository.UserRepository;
 import org.jspecify.annotations.NonNull;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

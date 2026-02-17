@@ -1,6 +1,6 @@
-package com.learn.notifiy.domain.entity;
+package com.learn.notifiy.entity;
 
-import com.learn.notifiy.domain.enums.UserRole;
+import com.learn.notifiy.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

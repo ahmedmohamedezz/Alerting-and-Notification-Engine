@@ -1,7 +1,6 @@
-package com.learn.notifiy.security;
+package com.learn.notifiy.service;
 
-import com.learn.notifiy.domain.entity.User;
-import org.jspecify.annotations.Nullable;
+import com.learn.notifiy.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

@@ -1,5 +1,8 @@
-package com.learn.notifiy.security;
+package com.learn.notifiy.config;
 
+import com.learn.notifiy.filter.AuthTokenFilter;
+import com.learn.notifiy.utils.JwtUtils;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -36,6 +39,11 @@ public class SecurityConfig {
                         auth.requestMatchers("/auth/**")
                                 .permitAll()
                                 .anyRequest().authenticated()
+                ).exceptionHandling(exception ->
+                        exception.authenticationEntryPoint(((request, response, authException) -> {
+                            // for login failures
+                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Error: Unauthenticated");
+                        }))
                 );
 
         // register authentication provider in security chain
