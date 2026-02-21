@@ -64,7 +64,7 @@ public class JwtUtils {
         String token = request.getHeader("Authorization");
 
         if (token == null || !token.startsWith("Bearer "))
-            return null;
+            throw new RuntimeException("Couldn't extract token. invalid, or missing");
 
         return token.split(" ")[1];
     }
@@ -101,6 +101,8 @@ public class JwtUtils {
         } catch (IllegalArgumentException e) {
             // Empty token
             logger.error("Claims not found in token: {}", e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException("Token validation failed. " + e.getMessage());
         }
 
         return false;

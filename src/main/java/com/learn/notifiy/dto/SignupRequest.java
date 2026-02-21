@@ -21,5 +21,5 @@ public class SignupRequest {
     @NotBlank (message = "Password is required")
     private String password;
 
-    private UserRole role;
+    private String role;
 }

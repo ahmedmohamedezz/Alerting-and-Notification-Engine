@@ -8,6 +8,7 @@ import com.learn.notifiy.repository.UserRepository;
 import com.learn.notifiy.utils.JwtUtils;
 import jakarta.transaction.Transactional;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -38,15 +39,10 @@ public class UserService {
         // validate request payload
         String email = request.getEmail();
         String password = request.getPassword();
-        UserRole role = request.getRole();
-
-        if (role == null) {
-            // default to user
-            role = UserRole.ROLE_USER;
-        }
+        UserRole role = determineRole(request.getRole());
 
         if (userRepository.existsByEmail(email)) {
-            throw new RuntimeException("User Already Exists");
+            throw new BadCredentialsException("User Already Exists");
         }
 
         // register a new user
@@ -57,6 +53,19 @@ public class UserService {
                 .build();
 
         userRepository.save(user);
+    }
+
+    private UserRole determineRole(String role) {
+        // if role is null, default to RULE_USER
+        // otherwise make sure it's a valid value
+        if (role == null || role.isBlank())
+            return UserRole.ROLE_USER;
+
+        try {
+            return UserRole.valueOf(role.toUpperCase());
+        } catch (IllegalArgumentException exc) {
+            throw new RuntimeException("Invalid Role.");
+        }
     }
 
     public Map<String, String> login(LoginRequest request) {

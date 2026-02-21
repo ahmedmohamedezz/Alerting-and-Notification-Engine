@@ -3,6 +3,7 @@ package com.learn.notifiy.config;
 import com.learn.notifiy.filter.AuthTokenFilter;
 import com.learn.notifiy.utils.JwtUtils;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,6 +17,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 @Configuration
 @EnableWebSecurity
@@ -23,35 +25,32 @@ public class SecurityConfig {
     private final JwtUtils jwtUtils;
     private final UserDetailsService userDetailsService;
     private final AuthTokenFilter authTokenFilter;
+    private final HandlerExceptionResolver resolver;
 
-    public SecurityConfig(JwtUtils jwtUtils, UserDetailsService userDetailsService, AuthTokenFilter authTokenFilter) {
+    public SecurityConfig(
+            JwtUtils jwtUtils,
+            UserDetailsService userDetailsService,
+            AuthTokenFilter authTokenFilter,
+            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver
+    ) {
         this.jwtUtils = jwtUtils;
         this.userDetailsService = userDetailsService;
         this.authTokenFilter = authTokenFilter;
+        this.resolver = resolver;
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth ->
-                        auth.requestMatchers("/auth/**")
-                                .permitAll()
-                                .anyRequest().authenticated()
-                ).exceptionHandling(exception ->
-                        exception.authenticationEntryPoint(((request, response, authException) -> {
-                            // for login failures
-                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Error: Unauthenticated");
-                        }))
-                );
+        http.csrf(csrf -> csrf.disable()).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)).authorizeHttpRequests(auth -> auth.requestMatchers("/auth/**").permitAll().anyRequest().authenticated()).exceptionHandling(exception -> exception.authenticationEntryPoint(((request, response, authException) -> {
+            // for login failures
+            resolver.resolveException(request, response, null, authException);
+        })));
 
         // register authentication provider in security chain
         http.authenticationProvider(authenticationProvider());
 
         // register jwt auth filter in security chain
-        http.addFilterBefore(authTokenFilter,
-                UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -72,9 +71,7 @@ public class SecurityConfig {
 
     // for handling auth manually
     @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration config
-    ) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
