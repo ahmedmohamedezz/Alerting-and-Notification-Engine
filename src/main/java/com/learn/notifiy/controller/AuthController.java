@@ -29,4 +29,10 @@ public class AuthController {
         Map<String, String> tokens = userService.login(request);
         return ResponseEntity.ok(tokens);
     }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refreshAccessToken(@RequestBody String refreshToken) {
+        Map<String, String> token = userService.refreshAccessToken(refreshToken);
+        return ResponseEntity.ok(token);
+    }
 }

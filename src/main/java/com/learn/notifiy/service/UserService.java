@@ -12,12 +12,11 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 public class UserService {
@@ -64,7 +63,7 @@ public class UserService {
         try {
             return UserRole.valueOf(role.toUpperCase());
         } catch (IllegalArgumentException exc) {
-            throw new RuntimeException("Invalid Role.");
+            throw new BadCredentialsException("Invalid Role.");
         }
     }
 
@@ -75,5 +74,16 @@ public class UserService {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         return jwtUtils.getTokens(request.getEmail());
+    }
+
+    public Map<String, String> refreshAccessToken(String refreshToken) {
+        // validate, or throw exception
+        jwtUtils.validateRefreshToken(refreshToken);
+
+        String token = jwtUtils.refresh(refreshToken);
+        Map<String, String> result = new HashMap<>();
+
+        result.put("accessToken", token);
+        return result;
     }
 }

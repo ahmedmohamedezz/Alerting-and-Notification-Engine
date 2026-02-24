@@ -1,11 +1,11 @@
 package com.learn.notifiy.utils;
 
-import com.learn.notifiy.enums.AuthTokenType;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,6 +17,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Component
 public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
@@ -36,7 +38,6 @@ public class JwtUtils {
     public String generateAccessToken(String subject) {
         return Jwts.builder()
                 .subject(subject)
-                .claim("type", "ACCESS")
                 .issuedAt(new Date())
                 .expiration(new Date(new Date().getTime() + accessTokenExpirationInMs))
                 .signWith(getAccessKey())
@@ -46,7 +47,6 @@ public class JwtUtils {
     public String generateRefreshToken(String subject) {
         return Jwts.builder()
                 .subject(subject)
-                .claim("type", "REFRESH")
                 .issuedAt(new Date())
                 .expiration(new Date(new Date().getTime() + refreshTokenExpirationInMs))
                 .signWith(getRefreshKey())
@@ -69,54 +69,25 @@ public class JwtUtils {
         return token.split(" ")[1];
     }
 
-    public boolean validateAccessToken(String token) {
-        return validateToken(token, getAccessKey(), AuthTokenType.ACCESS);
+    public void validateAccessToken(String token) {
+        validateToken(token, getAccessKey());
     }
 
-    public boolean validateRefreshToken(String token) {
-        return validateToken(token, getRefreshKey(), AuthTokenType.REFRESH);
+    public void validateRefreshToken(String token) {
+        validateToken(token, getRefreshKey());
     }
 
-    public boolean validateToken(String token, Key key, AuthTokenType tokenType) {
-        try {
-            Claims claims = Jwts.parser()
-                    .verifyWith((SecretKey) key)
-                    .build()
-                    .parseSignedClaims(token).getPayload();
-
-            String type = claims.get("type", String.class);
-
-            return type.equals(tokenType.name());
-        } catch (ExpiredJwtException e) {
-            logger.error("Expired token: {}", e.getMessage());
-        } catch (MalformedJwtException e) {
-            // invalid token structure
-            logger.error("Invalid token: {}", e.getMessage());
-        } catch (SignatureException e) {
-            // tampered / signed with another key
-            logger.error("Tampered token: {}", e.getMessage());
-        } catch (UnsupportedJwtException e) {
-            // unsupported alg
-            logger.error("Unsupported token: {}", e.getMessage());
-        } catch (IllegalArgumentException e) {
-            // Empty token
-            logger.error("Claims not found in token: {}", e.getMessage());
-        } catch (Exception e) {
-            throw new RuntimeException("Token validation failed. " + e.getMessage());
-        }
-
-        return false;
+    public String getSubjectFromAccessToken(String token) {
+        return getSubjectFromToken(token, getAccessKey());
     }
 
-    public String getSubjectFromJwtToken(String token) {
-        return Jwts.parser()
-                .verifyWith((SecretKey) getAccessKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .getSubject();
+    public String getSubjectFromRefreshToken(String token) {
+        return getSubjectFromToken(token, getRefreshKey());
     }
 
+    public String refresh(String refreshToken) {
+        return generateAccessToken(getSubjectFromRefreshToken(refreshToken));
+    }
 
     // utilities
     private Key getAccessKey() {
@@ -125,5 +96,30 @@ public class JwtUtils {
 
     private Key getRefreshKey() {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(refreshKey));
+    }
+
+    private void validateToken(String token, Key key) {
+        try {
+            Claims claims = Jwts.parser()
+                    .verifyWith((SecretKey) key)
+                    .build()
+                    .parseSignedClaims(token).getPayload();
+
+        } catch (JwtException e) {
+            logger.error("Expired token: {}", e.getMessage());
+            // re-throw exception
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Token validation failed. " + e.getMessage());
+        }
+    }
+
+    private String getSubjectFromToken(String token, Key key) {
+        return Jwts.parser()
+                .verifyWith((SecretKey) key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getSubject();
     }
 }

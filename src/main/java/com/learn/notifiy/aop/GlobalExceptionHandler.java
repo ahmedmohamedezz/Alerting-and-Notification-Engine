@@ -1,15 +1,14 @@
 package com.learn.notifiy.aop;
 
 import com.learn.notifiy.error.AppError;
+import io.jsonwebtoken.JwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import javax.management.JMException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,7 +36,7 @@ public class GlobalExceptionHandler {
 
     // handle jwt filter exceptions
     @ExceptionHandler({
-            JMException.class,
+            JwtException.class,
             IllegalArgumentException.class
     })
     public ResponseEntity<AppError> handleJwtExceptions(Exception ex) {
